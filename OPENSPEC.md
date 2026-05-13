@@ -324,7 +324,8 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 - [x] **✅ Rotas Dinâmicas de Categoria** — Refatorado de filtros Client-Side para SSR (`/categoria/[slug]`), gerando Pageviews independentes para SEO e AdSense.
 - [x] **✅ Monetização Máxima** — Implementada repetição de AdSlots in-feed (1 a cada 4 vagas) e um banner fixo no rodapé.
 - [x] **✅ SEO e Social Sharing** — Configuração do Open Graph em detalhes da vaga (OG:Image dinâmico), e criação de `sitemap.xml` e `robots.txt` para indexação avançada no Google.
-- [x] **✅ Sistema de Busca & Conversão** — Nova rota `/busca?q=` operando com query OR no Supabase (título, empresa, categoria) e barra de pesquisa com "Reset" no Hero, persistente nos resultados, e como novo CTA de conversão na página de detalhes da vaga.
+- [x] **✅ Sistema de Busca & Conversão** — Rota `/busca?q=` operando com query OR. Implementada lógica **"Fuzzy"** de remoção de acentos em Server Components para buscas parciais sem a necessidade de extensão `unaccent`.
+- [x] **✅ Recomendações Automáticas** — Sistema de fallback "Talvez te interesse" buscando vagas de "Estágio" ou "Júnior" quando uma busca retorna zero resultados, mantendo a monetização ativa.
 
 ### Pendente
 - [ ] **AdSense real:** Substituir placeholders em `AdSlot.tsx` pelo script Google AdSense quando conta aprovada
@@ -366,6 +367,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
+| 2026-05-13 | BUSCA FUZZY E FALLBACK: Implementada lógica de remoção de acentos via JS para buscas parciais. Seção "Talvez te interesse" inserida em buscas sem resultados. Botão "Desfazer" na header da página de busca. |
 | 2026-05-13 | SISTEMA DE BUSCA & UX: Busca persistente com botão Reset. Novo CTA de busca injetado na página de detalhes (vaga/[slug]) para impulsionar novos pageviews. |
 | 2026-05-13 | SEO & SOCIAL: Implementado Open Graph (WhatsApp previews), `sitemap.xml` e `robots.txt` gerados automaticamente. Adicionada URL base ao layout. |
 | 2026-05-13 | MONETIZAÇÃO & SSR: Criadas Rotas Dinâmicas de Categoria (`/categoria/[slug]`). Refatorada UI para links reais (SEO). Implementada arquitetura de Monetização Máxima (Ad fixo no footer, Ads in-feed a cada 4 cards). |
