@@ -133,9 +133,13 @@ export default async function BuscaPage({ searchParams }: BuscaProps) {
     <>
       <div className="container-app py-6 min-h-[calc(100vh-140px)]">
         <section className="mb-8 animate-fade-in flex flex-col items-center text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight mb-2 flex items-center flex-wrap justify-center gap-3">
-            Resultado para <span className="text-primary-light">"{query}"</span>
-            {query && (
+          <SearchBar initialQuery={query} />
+          
+          {query && (
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <span className="text-text-secondary text-base">
+                Resultado para <strong className="text-primary-light">"{query}"</strong>
+              </span>
               <Link 
                 href="/" 
                 className="text-sm font-medium text-text-muted hover:text-primary transition-colors flex items-center gap-1 bg-surface-card px-3 py-1.5 rounded-full border border-border-subtle hover:border-primary/50"
@@ -146,12 +150,8 @@ export default async function BuscaPage({ searchParams }: BuscaProps) {
                 </svg>
                 Desfazer
               </Link>
-            )}
-          </h1>
-          <p className="text-text-secondary text-sm sm:text-base mt-1.5 mb-6">
-            Refine sua pesquisa utilizando a barra abaixo.
-          </p>
-          <SearchBar initialQuery={query} />
+            </div>
+          )}
         </section>
 
         {/* Ad Slot 1 - Topo da Busca */}
