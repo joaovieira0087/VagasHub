@@ -6,7 +6,7 @@ import { gerarSlug, gerarSlugCategoria } from '@/lib/utils/slug';
 interface CriarVagaInput {
   titulo: string;
   descricao: string;
-  id_categoria: string;
+  categorias_ids: string[];
   nome_empresa: string;
   logo_empresa?: string;
   vendas_empresa?: string;
@@ -15,26 +15,43 @@ interface CriarVagaInput {
 }
 
 export async function criarVaga(input: CriarVagaInput) {
-  // Validar senha admin
   if (input.admin_password !== process.env.ADMIN_SECRET_KEY) {
     return { success: false, error: 'Senha de acesso inválida.' };
   }
 
-  const supabase = createAdminClient();
+  if (input.categorias_ids.length === 0) {
+    return { success: false, error: 'Selecione ao menos uma categoria.' };
+  }
+
+  if (input.categorias_ids.length > 10) {
+    return { success: false, error: 'Máximo de 10 categorias por vaga.' };
+  }
+
+  let supabase;
+  try {
+    supabase = createAdminClient();
+  } catch (err) {
+    console.error('[criarVaga] Falha ao criar cliente Supabase:', (err as Error).message);
+    return { success: false, error: 'Erro de configuração do banco. Verifique .env.local' };
+  }
 
   try {
     // 1. Buscar ou criar empresa
     let empresaId: string;
 
-    const { data: empresaExistente } = await supabase
+    const { data: empresaExistente, error: errBusca } = await supabase
       .from('empresa')
       .select('id')
       .eq('nome', input.nome_empresa.trim())
       .single();
 
+    if (errBusca && errBusca.code !== 'PGRST116') {
+      console.error('[criarVaga] Erro ao buscar empresa:', errBusca);
+      return { success: false, error: 'Erro ao buscar empresa: ' + errBusca.message };
+    }
+
     if (empresaExistente) {
       empresaId = empresaExistente.id;
-      // Atualizar campos opcionais da empresa se fornecidos
       if (input.vendas_empresa || input.logo_empresa) {
         await supabase
           .from('empresa')
@@ -56,6 +73,7 @@ export async function criarVaga(input: CriarVagaInput) {
         .single();
 
       if (errEmpresa || !novaEmpresa) {
+        console.error('[criarVaga] Erro ao criar empresa:', errEmpresa);
         return { success: false, error: 'Erro ao criar empresa: ' + errEmpresa?.message };
       }
       empresaId = novaEmpresa.id;
@@ -64,14 +82,14 @@ export async function criarVaga(input: CriarVagaInput) {
     // 2. Gerar slug único
     const slug = gerarSlug(input.titulo);
 
-    // 3. Criar a vaga
+    // 3. Criar a vaga (id_categoria = primeiro da lista para backward compat)
     const { data: vaga, error: errVaga } = await supabase
       .from('vagas')
       .insert({
         titulo: input.titulo.trim(),
         slug,
         descricao: input.descricao.trim(),
-        id_categoria: input.id_categoria,
+        id_categoria: input.categorias_ids[0] || null,
         id_empresa: empresaId,
         link_externo: input.link_externo.trim(),
         status: 'ativa',
@@ -81,31 +99,56 @@ export async function criarVaga(input: CriarVagaInput) {
       .single();
 
     if (errVaga || !vaga) {
+      console.error('[criarVaga] Erro ao inserir vaga:', errVaga);
       return { success: false, error: 'Erro ao criar vaga: ' + errVaga?.message };
+    }
+
+    // 4. Inserir relações N:N na tabela de junção
+    const junctionRows = input.categorias_ids.map((catId) => ({
+      vaga_id: vaga.id,
+      categoria_id: catId,
+    }));
+
+    const { error: errJunction } = await supabase
+      .from('vagas_categorias')
+      .insert(junctionRows);
+
+    if (errJunction) {
+      console.error('[criarVaga] Erro ao associar categorias:', errJunction);
+      // Vaga foi criada mas categorias falharam — não é fatal
     }
 
     return {
       success: true,
-      vaga: {
-        id: vaga.id,
-        slug: vaga.slug,
-        titulo: vaga.titulo,
-      },
+      vaga: { id: vaga.id, slug: vaga.slug, titulo: vaga.titulo },
     };
   } catch (err) {
-    return { success: false, error: 'Erro inesperado: ' + (err as Error).message };
+    const errorMsg = (err as Error).message;
+    console.error('[criarVaga] Erro inesperado:', errorMsg);
+    if (errorMsg.includes('fetch failed') || errorMsg.includes('ENOTFOUND')) {
+      return { success: false, error: 'Falha de conexão com Supabase. Verifique .env.local.' };
+    }
+    return { success: false, error: 'Erro inesperado: ' + errorMsg };
   }
 }
 
 export async function listarCategorias() {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from('categorias')
-    .select('*')
-    .order('nome');
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from('categorias')
+      .select('*')
+      .order('nome');
 
-  if (error) return [];
-  return data || [];
+    if (error) {
+      console.error('[listarCategorias] Erro:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.error('[listarCategorias] Falha de conexão:', (err as Error).message);
+    return [];
+  }
 }
 
 export async function criarCategoria(nome: string, adminPassword: string) {
@@ -113,17 +156,22 @@ export async function criarCategoria(nome: string, adminPassword: string) {
     return { success: false, error: 'Senha inválida.' };
   }
 
-  const supabase = createAdminClient();
-  const slug = gerarSlugCategoria(nome);
+  try {
+    const supabase = createAdminClient();
+    const slug = gerarSlugCategoria(nome);
 
-  const { data, error } = await supabase
-    .from('categorias')
-    .insert({ nome: nome.trim(), slug })
-    .select()
-    .single();
+    const { data, error } = await supabase
+      .from('categorias')
+      .insert({ nome: nome.trim(), slug })
+      .select()
+      .single();
 
-  if (error) return { success: false, error: error.message };
-  return { success: true, categoria: data };
+    if (error) return { success: false, error: error.message };
+    return { success: true, categoria: data };
+  } catch (err) {
+    console.error('[criarCategoria] Falha:', (err as Error).message);
+    return { success: false, error: 'Falha de conexão com o banco de dados.' };
+  }
 }
 
 export async function excluirVaga(id: string, adminPassword: string) {
@@ -131,14 +179,19 @@ export async function excluirVaga(id: string, adminPassword: string) {
     return { success: false, error: 'Senha inválida.' };
   }
 
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from('vagas')
-    .update({ status: 'inativa' })
-    .eq('id', id);
+  try {
+    const supabase = createAdminClient();
+    const { error } = await supabase
+      .from('vagas')
+      .update({ status: 'inativa' })
+      .eq('id', id);
 
-  if (error) return { success: false, error: error.message };
-  return { success: true };
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err) {
+    console.error('[excluirVaga] Falha:', (err as Error).message);
+    return { success: false, error: 'Falha de conexão com o banco de dados.' };
+  }
 }
 
 export async function listarVagasAdmin(adminPassword: string) {
@@ -146,12 +199,17 @@ export async function listarVagasAdmin(adminPassword: string) {
     return { success: false, error: 'Senha inválida.', vagas: [] };
   }
 
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from('vagas')
-    .select('*, categorias(*), empresa(*)')
-    .order('created_at', { ascending: false });
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from('vagas')
+      .select('*, vagas_categorias(categorias(*)), empresa(*)')
+      .order('created_at', { ascending: false });
 
-  if (error) return { success: false, error: error.message, vagas: [] };
-  return { success: true, vagas: data || [] };
+    if (error) return { success: false, error: error.message, vagas: [] };
+    return { success: true, vagas: data || [] };
+  } catch (err) {
+    console.error('[listarVagasAdmin] Falha:', (err as Error).message);
+    return { success: false, error: 'Falha de conexão com o banco de dados.', vagas: [] };
+  }
 }

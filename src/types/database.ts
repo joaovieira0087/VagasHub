@@ -1,5 +1,6 @@
 // ============================================
 // Tipos do Banco de Dados - Portal de Vagas
+// Relação N:N via tabela de junção vagas_categorias
 // ============================================
 
 export interface Categoria {
@@ -11,7 +12,7 @@ export interface Categoria {
 export interface Empresa {
   id: string;
   nome: string;
-  vendas: string | null; // categoria extra/dinâmica (texto livre)
+  vendas: string | null; // campo reservado para uso futuro
   logo_url: string | null;
 }
 
@@ -20,7 +21,7 @@ export interface Vaga {
   titulo: string;
   slug: string;
   descricao: string | null;
-  id_categoria: string | null;
+  id_categoria: string | null; // Legacy — mantido para compatibilidade
   id_empresa: string | null;
   link_externo: string | null;
   status: string;
@@ -28,21 +29,13 @@ export interface Vaga {
   created_at: string;
 }
 
-// Vaga com dados expandidos (joins)
+// Vaga com dados expandidos (joins via tabela de junção)
 export interface VagaCompleta extends Vaga {
-  categorias: Categoria | null;
+  vagas_categorias: { categorias: Categoria }[];
   empresa: Empresa | null;
 }
 
-// Categoria com contagem de vagas (para ranking)
+// Categoria com contagem de vagas (para ranking na Home)
 export interface CategoriaComContagem extends Categoria {
   vaga_count: number;
-}
-
-// Categoria unificada (normal + vendas de empresa)
-export interface CategoriaUnificada {
-  nome: string;
-  slug: string;
-  count: number;
-  origem: 'categoria' | 'vendas';
 }

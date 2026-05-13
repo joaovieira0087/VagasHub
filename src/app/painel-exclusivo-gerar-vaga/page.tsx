@@ -9,7 +9,7 @@ export default function AdminPage() {
   // State - Form
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [idCategoria, setIdCategoria] = useState('');
+  const [categoriasIds, setCategoriasIds] = useState<string[]>([]);
   const [nomeEmpresa, setNomeEmpresa] = useState('');
   const [logoEmpresa, setLogoEmpresa] = useState('');
   const [vendasEmpresa, setVendasEmpresa] = useState('');
@@ -41,10 +41,23 @@ export default function AdminPage() {
     setCategorias(cats);
   }
 
+  function toggleCategoria(id: string) {
+    setCategoriasIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 10) return prev; // Max 10
+      return [...prev, id];
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!titulo.trim() || !linkExterno.trim() || !adminPassword.trim()) {
       setMensagem({ tipo: 'erro', texto: 'Preencha todos os campos obrigatórios.' });
+      return;
+    }
+
+    if (categoriasIds.length === 0) {
+      setMensagem({ tipo: 'erro', texto: 'Selecione ao menos uma categoria.' });
       return;
     }
 
@@ -55,7 +68,7 @@ export default function AdminPage() {
     const resultado = await criarVaga({
       titulo: titulo.trim(),
       descricao: descricao.trim(),
-      id_categoria: idCategoria || categorias[0]?.id || '',
+      categorias_ids: categoriasIds,
       nome_empresa: nomeEmpresa.trim() || 'Empresa',
       logo_empresa: logoEmpresa.trim() || undefined,
       vendas_empresa: vendasEmpresa.trim() || undefined,
@@ -72,6 +85,7 @@ export default function AdminPage() {
       // Limpar formulário (exceto senha)
       setTitulo('');
       setDescricao('');
+      setCategoriasIds([]);
       setNomeEmpresa('');
       setLogoEmpresa('');
       setVendasEmpresa('');
@@ -209,29 +223,41 @@ export default function AdminPage() {
               onChange={(e) => setDescricao(e.target.value)}
               rows={8}
               className="w-full bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-y font-mono text-[13px] leading-relaxed"
-              placeholder="## Requisitos&#10;- Item 1&#10;- Item 2&#10;&#10;## Benefícios&#10;- VR, VT..."
+              placeholder={"## Requisitos\n- Item 1\n- Item 2\n\n## Benefícios\n- VR, VT..."}
               id="input-descricao"
             />
           </div>
 
-          {/* Categoria */}
+          {/* Categorias — Multi-Select Tags */}
           <div>
             <label className="block text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2">
-              Categoria
+              Categorias * (clique para selecionar)
             </label>
-            <div className="flex gap-2">
-              <select
-                value={idCategoria}
-                onChange={(e) => setIdCategoria(e.target.value)}
-                className="flex-1 bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
-                id="select-categoria"
-              >
-                <option value="">Selecione...</option>
-                {categorias.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.nome}</option>
-                ))}
-              </select>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {categorias.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategoria(cat.id)}
+                  className={`badge cursor-pointer transition-all duration-200 ${
+                    categoriasIds.includes(cat.id)
+                      ? 'badge-active'
+                      : 'badge-primary hover:bg-primary/20'
+                  }`}
+                  id={`tag-cat-${cat.slug}`}
+                >
+                  {categoriasIds.includes(cat.id) && '✓ '}
+                  {cat.nome}
+                </button>
+              ))}
+              {categorias.length === 0 && (
+                <p className="text-text-muted text-xs italic">Nenhuma categoria carregada. Verifique a conexão.</p>
+              )}
             </div>
+            <p className="text-text-muted text-xs">
+              {categoriasIds.length}/10 categorias selecionadas
+              {categoriasIds.length >= 10 && <span className="text-warning ml-1">(máximo atingido)</span>}
+            </p>
 
             {/* Criar nova categoria inline */}
             <div className="flex gap-2 mt-2">
@@ -285,10 +311,10 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Vendas (categoria dinâmica) */}
+          {/* Vendas (campo extra da empresa) */}
           <div>
             <label className="block text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2">
-              Categoria Extra da Empresa (campo Vendas)
+              Tag Extra da Empresa (campo Vendas)
             </label>
             <input
               type="text"
@@ -299,7 +325,7 @@ export default function AdminPage() {
               id="input-vendas"
             />
             <p className="text-text-muted text-xs mt-1">
-              Aparecerá como categoria dinâmica no menu do site.
+              Campo de texto livre da empresa. Reservado para uso futuro.
             </p>
           </div>
 
@@ -401,37 +427,49 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {vagasAdmin.map((vaga) => (
-                <div key={vaga.id} className="glass-card p-4 hover:transform-none">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-text-primary font-semibold text-sm truncate">{vaga.titulo}</h3>
-                      <p className="text-text-muted text-xs mt-0.5">
-                        {vaga.empresa?.nome} • {vaga.visualizacoes} views •{' '}
-                        <span className={vaga.status === 'ativa' ? 'text-success' : 'text-danger'}>
-                          {vaga.status}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      <button
-                        onClick={() => handleCopiarLink(vaga.slug, vaga.titulo)}
-                        className="badge badge-accent cursor-pointer text-[0.65rem] hover:opacity-80"
-                        title="Copiar link WhatsApp"
-                      >
-                        📋
-                      </button>
-                      <button
-                        onClick={() => handleExcluir(vaga.id)}
-                        className="badge text-[0.65rem] cursor-pointer hover:opacity-80 bg-danger/10 text-danger border border-danger/20"
-                        title="Desativar vaga"
-                      >
-                        🗑️
-                      </button>
+              {vagasAdmin.map((vaga) => {
+                const cats = vaga.vagas_categorias?.map((vc: any) => vc.categorias?.nome).filter(Boolean) || [];
+                return (
+                  <div key={vaga.id} className="glass-card p-4 hover:transform-none">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-text-primary font-semibold text-sm truncate">{vaga.titulo}</h3>
+                        <p className="text-text-muted text-xs mt-0.5">
+                          {vaga.empresa?.nome} • {vaga.visualizacoes} views •{' '}
+                          <span className={vaga.status === 'ativa' ? 'text-success' : 'text-danger'}>
+                            {vaga.status}
+                          </span>
+                        </p>
+                        {cats.length > 0 && (
+                          <div className="flex gap-1 mt-1.5 flex-wrap">
+                            {cats.map((nome: string) => (
+                              <span key={nome} className="text-[0.6rem] bg-primary/10 text-primary-light px-1.5 py-0.5 rounded-full">
+                                {nome}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => handleCopiarLink(vaga.slug, vaga.titulo)}
+                          className="badge badge-accent cursor-pointer text-[0.65rem] hover:opacity-80"
+                          title="Copiar link WhatsApp"
+                        >
+                          📋
+                        </button>
+                        <button
+                          onClick={() => handleExcluir(vaga.id)}
+                          className="badge text-[0.65rem] cursor-pointer hover:opacity-80 bg-danger/10 text-danger border border-danger/20"
+                          title="Desativar vaga"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

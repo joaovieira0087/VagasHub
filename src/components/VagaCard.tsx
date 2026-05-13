@@ -9,6 +9,7 @@ interface VagaCardProps {
 
 export default function VagaCard({ vaga, index = 0 }: VagaCardProps) {
   const delay = Math.min(index * 60, 400);
+  const categorias = vaga.vagas_categorias?.map((vc) => vc.categorias).filter(Boolean) || [];
 
   return (
     <Link
@@ -47,12 +48,15 @@ export default function VagaCard({ vaga, index = 0 }: VagaCardProps) {
             </p>
           )}
 
-          {/* Meta */}
+          {/* Meta — Multi-categorias */}
           <div className="flex items-center gap-2 mt-2.5 flex-wrap">
-            {vaga.categorias && (
-              <span className="badge badge-primary text-[0.7rem] py-1 px-2.5">
-                {vaga.categorias.nome}
+            {categorias.slice(0, 3).map((cat) => (
+              <span key={cat.slug} className="badge badge-primary text-[0.7rem] py-1 px-2.5">
+                {cat.nome}
               </span>
+            ))}
+            {categorias.length > 3 && (
+              <span className="text-text-muted text-xs">+{categorias.length - 3}</span>
             )}
             <span className="text-text-muted text-xs">
               {tempoRelativo(vaga.created_at)}

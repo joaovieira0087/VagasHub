@@ -6,8 +6,8 @@ export default function Header() {
       <div className="container-app">
         <div className="flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-lg group-hover:shadow-[0_0_15px_rgba(108,99,255,0.4)] transition-shadow">
-              V
+            <div className="flex-shrink-0 flex items-center justify-center bg-white rounded-lg p-1.5 shadow-lg group-hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-shadow">
+              <img src="/logo.png" alt="VagasHub Logo" className="w-6 h-6 object-contain" />
             </div>
             <span className="text-text-primary font-bold text-lg tracking-tight">
               Vagas<span className="text-primary-light">Hub</span>

@@ -12,13 +12,12 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Buscar vaga pelo slug
 async function buscarVaga(slug: string): Promise<VagaCompleta | null> {
   const supabase = await createClient();
 
   const { data } = await supabase
     .from('vagas')
-    .select('*, categorias(*), empresa(*)')
+    .select('*, vagas_categorias(categorias(*)), empresa(*)')
     .eq('slug', slug)
     .eq('status', 'ativa')
     .single();
@@ -26,24 +25,32 @@ async function buscarVaga(slug: string): Promise<VagaCompleta | null> {
   return data as VagaCompleta | null;
 }
 
-// Incrementar visualizações
 async function incrementarVisualizacoes(vagaId: string) {
   const supabase = await createClient();
   await supabase.rpc('increment_visualizacoes', { vaga_id: vagaId });
 }
 
-// Buscar vagas relacionadas (mesma categoria)
-async function buscarRelacionadas(categoriaId: string | null, vagaIdAtual: string): Promise<VagaCompleta[]> {
-  if (!categoriaId) return [];
+async function buscarRelacionadas(vagaId: string, categoriaIds: string[]): Promise<VagaCompleta[]> {
+  if (categoriaIds.length === 0) return [];
 
   const supabase = await createClient();
 
+  // Buscar vagas que compartilham qualquer categoria
+  const { data: junctions } = await supabase
+    .from('vagas_categorias')
+    .select('vaga_id')
+    .in('categoria_id', categoriaIds)
+    .neq('vaga_id', vagaId);
+
+  if (!junctions || junctions.length === 0) return [];
+
+  const vagaIds = [...new Set(junctions.map((j) => j.vaga_id))];
+
   const { data } = await supabase
     .from('vagas')
-    .select('*, categorias(*), empresa(*)')
-    .eq('id_categoria', categoriaId)
+    .select('*, vagas_categorias(categorias(*)), empresa(*)')
     .eq('status', 'ativa')
-    .neq('id', vagaIdAtual)
+    .in('id', vagaIds)
     .order('created_at', { ascending: false })
     .limit(6);
 
@@ -86,7 +93,13 @@ export default async function VagaDetalhes({ params }: PageProps) {
   // Incrementar visualizações (fire and forget)
   incrementarVisualizacoes(vaga.id);
 
-  const relacionadas = await buscarRelacionadas(vaga.id_categoria, vaga.id);
+  // Extrair IDs de categorias para buscar relacionadas
+  const categoriaIds = vaga.vagas_categorias
+    ?.map((vc) => vc.categorias?.id)
+    .filter(Boolean) as string[] || [];
+
+  const categorias = vaga.vagas_categorias?.map((vc) => vc.categorias).filter(Boolean) || [];
+  const relacionadas = await buscarRelacionadas(vaga.id, categoriaIds);
 
   return (
     <div className="container-app py-6">
@@ -124,13 +137,13 @@ export default async function VagaDetalhes({ params }: PageProps) {
           {vaga.titulo}
         </h1>
 
-        {/* Meta info */}
+        {/* Meta info — Multi-categorias */}
         <div className="flex items-center gap-2 flex-wrap mb-6">
-          {vaga.categorias && (
-            <span className="badge badge-primary">
-              {vaga.categorias.nome}
+          {categorias.map((cat) => (
+            <span key={cat.slug} className="badge badge-primary">
+              {cat.nome}
             </span>
-          )}
+          ))}
           <span className="badge badge-accent">
             {vaga.status === 'ativa' ? '🟢 Ativa' : '⚪ Encerrada'}
           </span>

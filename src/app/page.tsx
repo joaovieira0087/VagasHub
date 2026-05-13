@@ -1,187 +1,105 @@
 import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/server';
-import VagaCard from '@/components/VagaCard';
 import VagaCardSkeleton from '@/components/VagaCardSkeleton';
 import CategoriaBar from '@/components/CategoriaBar';
 import AdSlot from '@/components/AdSlot';
-import type { VagaCompleta, CategoriaUnificada } from '@/types/database';
+import VagasList from '@/components/VagasList';
+import type { VagaCompleta, CategoriaComContagem } from '@/types/database';
 
-interface HomeProps {
-  searchParams: Promise<{ categoria?: string }>;
-}
-
-async function buscarCategoriasUnificadas(): Promise<CategoriaUnificada[]> {
+export async function buscarCategorias(): Promise<CategoriaComContagem[]> {
   const supabase = await createClient();
 
-  // 1. Buscar categorias com contagem de vagas ativas
+  // 1. Buscar todas as categorias
   const { data: categorias } = await supabase
     .from('categorias')
-    .select('id, nome, slug');
+    .select('*');
 
+  // 2. Buscar junction data de vagas ativas
   const { data: vagas } = await supabase
     .from('vagas')
-    .select('id_categoria, empresa(vendas)')
+    .select('id, vagas_categorias(categoria_id)')
     .eq('status', 'ativa');
 
-  if (!categorias || !vagas) return [];
+  if (!categorias) return [];
 
-  // Contagem por categoria
-  const contagemMap = new Map<string, number>();
-  for (const vaga of vagas) {
-    if (vaga.id_categoria) {
-      contagemMap.set(vaga.id_categoria, (contagemMap.get(vaga.id_categoria) || 0) + 1);
-    }
-  }
-
-  // Categorias principais com contagem
-  const categoriasUnificadas: CategoriaUnificada[] = categorias
-    .map((cat) => ({
-      nome: cat.nome,
-      slug: cat.slug,
-      count: contagemMap.get(cat.id) || 0,
-      origem: 'categoria' as const,
-    }))
-    .filter((cat) => cat.count > 0);
-
-  // 2. Buscar categorias dinâmicas do campo "vendas" das empresas
-  const { data: empresas } = await supabase
-    .from('empresa')
-    .select('vendas');
-
-  if (empresas) {
-    const vendasMap = new Map<string, number>();
-
-    for (const emp of empresas) {
-      if (emp.vendas && emp.vendas.trim()) {
-        const nomeVenda = emp.vendas.trim();
-        const slugVenda = nomeVenda
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-');
-
-        // Verificar se já não é uma categoria principal
-        const jaExiste = categoriasUnificadas.some(
-          (c) => c.slug === slugVenda || c.nome.toLowerCase() === nomeVenda.toLowerCase()
-        );
-
-        if (!jaExiste) {
-          vendasMap.set(slugVenda, (vendasMap.get(slugVenda) || 0) + 1);
-
-          // Adicionar se não existir no array ainda
-          if (!categoriasUnificadas.some((c) => c.slug === slugVenda)) {
-            categoriasUnificadas.push({
-              nome: nomeVenda,
-              slug: slugVenda,
-              count: vendasMap.get(slugVenda) || 1,
-              origem: 'vendas',
-            });
-          }
-        }
+  // 3. Contar vagas por categoria via junction
+  const countMap = new Map<string, number>();
+  if (vagas) {
+    for (const vaga of vagas) {
+      const junctions = (vaga as any).vagas_categorias || [];
+      for (const j of junctions) {
+        countMap.set(j.categoria_id, (countMap.get(j.categoria_id) || 0) + 1);
       }
     }
   }
 
-  // Ranking: mais vagas primeiro
-  return categoriasUnificadas.sort((a, b) => b.count - a.count);
+  // 4. Retornar com contagem, filtrado e ordenado por ranking
+  return categorias
+    .map((cat) => ({
+      ...cat,
+      vaga_count: countMap.get(cat.id) || 0,
+    }))
+    .filter((cat) => cat.vaga_count > 0)
+    .sort((a, b) => b.vaga_count - a.vaga_count);
 }
 
-async function buscarVagas(categoriaSlug?: string): Promise<VagaCompleta[]> {
+async function buscarTodasVagas(): Promise<VagaCompleta[]> {
   const supabase = await createClient();
 
-  let query = supabase
+  const { data } = await supabase
     .from('vagas')
-    .select('*, categorias(*), empresa(*)')
+    .select('*, vagas_categorias(categorias(*)), empresa(*)')
     .eq('status', 'ativa')
     .order('created_at', { ascending: false })
     .limit(50);
 
-  if (categoriaSlug) {
-    // Buscar categoria pelo slug
-    const { data: categoria } = await supabase
-      .from('categorias')
-      .select('id')
-      .eq('slug', categoriaSlug)
-      .single();
-
-    if (categoria) {
-      query = query.eq('id_categoria', categoria.id);
-    }
-  }
-
-  const { data } = await query;
   return (data as VagaCompleta[]) || [];
 }
 
-async function VagasList({ categoriaSlug }: { categoriaSlug?: string }) {
-  const vagas = await buscarVagas(categoriaSlug);
-
-  if (vagas.length === 0) {
-    return (
-      <div className="text-center py-16 animate-fade-in">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-card flex items-center justify-center">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-text-muted">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <p className="text-text-secondary text-lg font-medium">Nenhuma vaga encontrada</p>
-        <p className="text-text-muted text-sm mt-1">
-          {categoriaSlug ? 'Tente outra categoria.' : 'Novas vagas serão publicadas em breve!'}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-3">
-      {vagas.map((vaga, i) => (
-        <div key={vaga.id}>
-          <VagaCard vaga={vaga} index={i} />
-          {/* Ad slot a cada 5 vagas */}
-          {(i + 1) % 5 === 0 && i < vagas.length - 1 && (
-            <AdSlot format="horizontal" label="Publicidade" className="my-3" />
-          )}
-        </div>
-      ))}
-    </div>
-  );
+async function VagasListWrapper() {
+  const vagas = await buscarTodasVagas();
+  return <VagasList vagas={vagas} />;
 }
 
-export default async function Home({ searchParams }: HomeProps) {
-  const params = await searchParams;
-  const categoriaAtiva = params.categoria;
-  const categorias = await buscarCategoriasUnificadas();
+export default async function Home() {
+  const categorias = await buscarCategorias();
 
   return (
-    <div className="container-app py-6">
-      {/* Hero minimal */}
-      <section className="mb-6 animate-fade-in">
-        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
-          Vagas de Emprego
-          <span className="text-primary-light"> Atualizadas</span>
-        </h1>
-        <p className="text-text-secondary text-sm sm:text-base mt-1.5">
-          Encontre sua próxima oportunidade. Novas vagas todos os dias.
-        </p>
-      </section>
+    <>
+      <div className="container-app py-6">
+        {/* Hero minimal */}
+        <section className="mb-6 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
+            Vagas de Emprego
+            <span className="text-primary-light"> Atualizadas</span>
+          </h1>
+          <p className="text-text-secondary text-sm sm:text-base mt-1.5">
+            Encontre sua próxima oportunidade. Novas vagas todos os dias.
+          </p>
+        </section>
 
-      {/* Ad Slot 1 - Header */}
-      <AdSlot format="horizontal" label="Publicidade — Header" className="mb-5" />
+        {/* Ad Slot 1 - Header */}
+        <AdSlot format="horizontal" label="Publicidade — Header" className="mb-5" />
 
-      {/* Categorias */}
-      <section className="mb-5">
-        <Suspense fallback={<div className="skeleton h-8 w-full rounded-full" />}>
-          <CategoriaBar categorias={categorias} categoriaAtiva={categoriaAtiva} />
-        </Suspense>
-      </section>
+        {/* Categorias */}
+        <section className="mb-5">
+          <Suspense fallback={<div className="skeleton h-8 w-full rounded-full" />}>
+            <CategoriaBar categorias={categorias} />
+          </Suspense>
+        </section>
 
-      {/* Lista de Vagas */}
-      <section>
-        <Suspense fallback={<VagaCardSkeleton count={6} />}>
-          <VagasList categoriaSlug={categoriaAtiva} />
-        </Suspense>
-      </section>
-    </div>
+        {/* Lista de Vagas */}
+        <section>
+          <Suspense fallback={<VagaCardSkeleton count={6} />}>
+            <VagasListWrapper />
+          </Suspense>
+        </section>
+      </div>
+
+      {/* Ad Fixo no Rodapé (Aggressive Monetization) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 p-2 bg-background/90 backdrop-blur-lg border-t border-border-subtle shadow-[0_-10px_20px_rgba(0,0,0,0.2)]">
+        <AdSlot format="horizontal" label="Publicidade" className="!my-0 !min-h-[60px]" />
+      </div>
+    </>
   );
 }
