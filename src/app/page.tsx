@@ -69,12 +69,12 @@ export default async function Home() {
     <>
       <div className="container-app py-6">
         {/* Hero minimal */}
-        <section className="mb-8 animate-fade-in flex flex-col items-center text-center">
+        <section className="mt-8 sm:mt-12 mb-10 animate-fade-in flex flex-col items-center text-center">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-primary leading-tight max-w-2xl">
             Vagas de Emprego
             <span className="text-primary-light"> Atualizadas</span>
           </h1>
-          <p className="text-text-secondary text-base sm:text-lg mt-3 max-w-xl mb-6">
+          <p className="text-text-secondary text-base sm:text-lg mt-3 max-w-xl mb-8">
             Encontre sua próxima oportunidade. Novas vagas todos os dias.
           </p>
           <SearchBar />

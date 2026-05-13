@@ -132,7 +132,7 @@ export default async function BuscaPage({ searchParams }: BuscaProps) {
   return (
     <>
       <div className="container-app py-6 min-h-[calc(100vh-140px)]">
-        <section className="mb-8 animate-fade-in flex flex-col items-center text-center">
+        <section className="mt-8 sm:mt-12 mb-10 animate-fade-in flex flex-col items-center text-center">
           <SearchBar initialQuery={query} />
           
           {query && (
