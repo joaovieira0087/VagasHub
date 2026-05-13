@@ -68,16 +68,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const descricaoLimpa = vaga.descricao
     ? vaga.descricao.replace(/[#*_\[\]()]/g, '').slice(0, 160)
-    : `Confira esta vaga: ${vaga.titulo}`;
+    : `Confira os detalhes desta oportunidade e candidate-se agora no portal VagasHub.`;
+
+  const ogImageUrl = vaga.empresa?.logo_url || '/logo.png';
 
   return {
-    title: vaga.titulo,
+    title: `${vaga.titulo} - VagasHub`,
     description: descricaoLimpa,
     openGraph: {
-      title: `🔥 ${vaga.titulo}`,
-      description: descricaoLimpa,
+      title: `${vaga.titulo} - VagasHub`,
+      description: `Confira os detalhes desta oportunidade e candidate-se agora no portal VagasHub.`,
       type: 'article',
       locale: 'pt_BR',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 800,
+          height: 600,
+          alt: `Vaga de ${vaga.titulo}`,
+        },
+      ],
     },
   };
 }

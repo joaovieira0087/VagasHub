@@ -11,6 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
     default: "VagasHub — Vagas de Emprego Atualizadas",
     template: "%s | VagasHub",
@@ -22,6 +23,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: "VagasHub",
+    images: [
+      {
+        url: '/logo.png',
+        width: 800,
+        height: 600,
+        alt: 'VagasHub Logo',
+      },
+    ],
   },
 };
 

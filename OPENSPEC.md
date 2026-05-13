@@ -323,6 +323,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 - [x] **✅ Branding & UI** — Nova logomarca VagasHub integrada ao Header/Footer, configuração de Favicon, refinamento do Footer (`border-white/5`), e padronização de layout (padding/min-h-screen) nas páginas institucionais.
 - [x] **✅ Rotas Dinâmicas de Categoria** — Refatorado de filtros Client-Side para SSR (`/categoria/[slug]`), gerando Pageviews independentes para SEO e AdSense.
 - [x] **✅ Monetização Máxima** — Implementada repetição de AdSlots in-feed (1 a cada 4 vagas) e um banner fixo no rodapé.
+- [x] **✅ SEO e Social Sharing** — Configuração do Open Graph em detalhes da vaga (OG:Image dinâmico), e criação de `sitemap.xml` e `robots.txt` para indexação avançada no Google.
 
 ### Pendente
 - [ ] **AdSense real:** Substituir placeholders em `AdSlot.tsx` pelo script Google AdSense quando conta aprovada
@@ -364,6 +365,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
+| 2026-05-13 | SEO & SOCIAL: Implementado Open Graph (WhatsApp previews), `sitemap.xml` e `robots.txt` gerados automaticamente. Adicionada URL base ao layout. |
 | 2026-05-13 | MONETIZAÇÃO & SSR: Criadas Rotas Dinâmicas de Categoria (`/categoria/[slug]`). Refatorada UI para links reais (SEO). Implementada arquitetura de Monetização Máxima (Ad fixo no footer, Ads in-feed a cada 4 cards). |
 | 2026-05-13 | BRANDING & UI: Implementação da nova logomarca (Header/Footer), Favicon, e refinamento de layout (min-h-screen, pb-32) nas páginas legais. |
 | 2026-05-13 | ADSENSE READY: Criadas páginas legais e institucionais (/privacidade, /termos, /sobre) e integradas ao Footer. |
