@@ -324,7 +324,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 - [x] **✅ Rotas Dinâmicas de Categoria** — Refatorado de filtros Client-Side para SSR (`/categoria/[slug]`), gerando Pageviews independentes para SEO e AdSense.
 - [x] **✅ Monetização Máxima** — Implementada repetição de AdSlots in-feed (1 a cada 4 vagas) e um banner fixo no rodapé.
 - [x] **✅ SEO e Social Sharing** — Configuração do Open Graph em detalhes da vaga (OG:Image dinâmico), e criação de `sitemap.xml` e `robots.txt` para indexação avançada no Google.
-- [x] **✅ Sistema de Busca** — Nova rota `/busca?q=` operando com query OR no Supabase (título, empresa, categoria) e barra de pesquisa destacada no Hero.
+- [x] **✅ Sistema de Busca & Conversão** — Nova rota `/busca?q=` operando com query OR no Supabase (título, empresa, categoria) e barra de pesquisa com "Reset" no Hero, persistente nos resultados, e como novo CTA de conversão na página de detalhes da vaga.
 
 ### Pendente
 - [ ] **AdSense real:** Substituir placeholders em `AdSlot.tsx` pelo script Google AdSense quando conta aprovada
@@ -366,7 +366,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
-| 2026-05-13 | SISTEMA DE BUSCA: Implementada barra de pesquisa central e nova rota `/busca`. Busca inteligente em múltiplas tabelas. |
+| 2026-05-13 | SISTEMA DE BUSCA & UX: Busca persistente com botão Reset. Novo CTA de busca injetado na página de detalhes (vaga/[slug]) para impulsionar novos pageviews. |
 | 2026-05-13 | SEO & SOCIAL: Implementado Open Graph (WhatsApp previews), `sitemap.xml` e `robots.txt` gerados automaticamente. Adicionada URL base ao layout. |
 | 2026-05-13 | MONETIZAÇÃO & SSR: Criadas Rotas Dinâmicas de Categoria (`/categoria/[slug]`). Refatorada UI para links reais (SEO). Implementada arquitetura de Monetização Máxima (Ad fixo no footer, Ads in-feed a cada 4 cards). |
 | 2026-05-13 | BRANDING & UI: Implementação da nova logomarca (Header/Footer), Favicon, e refinamento de layout (min-h-screen, pb-32) nas páginas legais. |

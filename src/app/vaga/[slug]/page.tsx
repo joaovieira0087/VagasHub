@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AdSlot from '@/components/AdSlot';
 import VagaCard from '@/components/VagaCard';
+import SearchBar from '@/components/SearchBar';
 import { formatarData, tempoRelativo } from '@/lib/utils/tempo';
 import type { VagaCompleta } from '@/types/database';
 
@@ -202,6 +203,17 @@ export default async function VagaDetalhes({ params }: PageProps) {
               Link indisponível
             </button>
           )}
+        </div>
+
+        {/* CTA de Busca (Conversão) */}
+        <div className="mt-10 mb-10 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-surface to-surface-card border border-border-subtle flex flex-col items-center text-center shadow-lg">
+          <h3 className="text-xl sm:text-2xl font-bold text-text-primary mb-2">
+            Ainda não é a vaga <span className="text-primary-light">ideal?</span>
+          </h3>
+          <p className="text-text-secondary mb-6 max-w-md">
+            Ache a oportunidade perfeita para você. Pesquise por empresas, cargos ou áreas de atuação.
+          </p>
+          <SearchBar />
         </div>
 
         {/* Vagas Relacionadas */}

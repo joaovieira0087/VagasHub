@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import VagaCardSkeleton from '@/components/VagaCardSkeleton';
 import AdSlot from '@/components/AdSlot';
 import VagasList from '@/components/VagasList';
+import SearchBar from '@/components/SearchBar';
 import type { VagaCompleta } from '@/types/database';
 
 interface BuscaProps {
@@ -106,13 +107,14 @@ export default async function BuscaPage({ searchParams }: BuscaProps) {
   return (
     <>
       <div className="container-app py-6 min-h-[calc(100vh-140px)]">
-        <section className="mb-6 animate-fade-in">
+        <section className="mb-8 animate-fade-in flex flex-col items-center text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
             Resultados da <span className="text-primary-light">Busca</span>
           </h1>
-          <p className="text-text-secondary text-sm sm:text-base mt-1.5">
+          <p className="text-text-secondary text-sm sm:text-base mt-1.5 mb-6">
             Mostrando resultados para: <span className="font-medium text-text-primary">"{query}"</span>
           </p>
+          <SearchBar initialQuery={query} />
         </section>
 
         {/* Ad Slot 1 - Topo da Busca */}
