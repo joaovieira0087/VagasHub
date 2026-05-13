@@ -367,6 +367,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
+| 2026-05-13 | SITEMAP & METADATA: Corrigido o `baseUrl` no `sitemap.ts`, `robots.ts` e `layout.tsx` para usar `https://www.hubvagasbr.com.br` como fallback de produção. |
 | 2026-05-13 | BUSCA FUZZY E FALLBACK: Implementada lógica de remoção de acentos via JS para buscas parciais. Seção "Talvez te interesse" inserida em buscas sem resultados. Botão "Desfazer" na header da página de busca. |
 | 2026-05-13 | SISTEMA DE BUSCA & UX: Busca persistente com botão Reset. Novo CTA de busca injetado na página de detalhes (vaga/[slug]) para impulsionar novos pageviews. |
 | 2026-05-13 | SEO & SOCIAL: Implementado Open Graph (WhatsApp previews), `sitemap.xml` e `robots.txt` gerados automaticamente. Adicionada URL base ao layout. |
