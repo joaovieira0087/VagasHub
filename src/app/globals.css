@@ -1,26 +1,380 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================
+   PORTAL DE VAGAS - Design System
+   Mobile-First | Dark Mode Premium
+   ============================================ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* --- Cores Base --- */
+  --color-background: #0B0D1A;
+  --color-surface: #12152B;
+  --color-surface-card: #1A1D35;
+  --color-surface-elevated: #222640;
+  --color-surface-hover: #2A2E4A;
+  --color-border: #2E3354;
+  --color-border-subtle: #1E2140;
+
+  /* --- Cores de Ação --- */
+  --color-primary: #6C63FF;
+  --color-primary-hover: #5A52E0;
+  --color-primary-light: #8B85FF;
+  --color-accent: #00D4AA;
+  --color-accent-hover: #00B894;
+  --color-danger: #FF6B6B;
+  --color-warning: #FFB84D;
+  --color-success: #34D399;
+
+  /* --- Texto --- */
+  --color-text-primary: #F1F3F9;
+  --color-text-secondary: #8B92B3;
+  --color-text-muted: #5A6080;
+  --color-text-accent: #00D4AA;
+
+  /* --- Fontes --- */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
+
+  /* --- Sombras --- */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --shadow-glow-primary: 0 0 20px rgba(108, 99, 255, 0.3);
+  --shadow-glow-accent: 0 0 20px rgba(0, 212, 170, 0.3);
+
+  /* --- Raios de Borda --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADA
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+/* ============================================
+   SKELETON LOADING
+   ============================================ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-card) 25%,
+    var(--color-surface-elevated) 50%,
+    var(--color-surface-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================
+   GLASSMORPHISM CARD
+   ============================================ */
+
+.glass-card {
+  background: rgba(26, 29, 53, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   BOTÃO PRIMÁRIO GRADIENT
+   ============================================ */
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%);
+  color: white;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-glow-primary);
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+/* ============================================
+   BOTÃO CTA (CANDIDATAR-SE)
+   ============================================ */
+
+.btn-cta {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #00B894 100%);
+  color: #0B0D1A;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  text-decoration: none;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-cta:hover {
+  box-shadow: var(--shadow-glow-accent);
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.btn-cta:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   BADGE / CHIP DE CATEGORIA
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.badge-primary {
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--color-primary-light);
+  border: 1px solid rgba(108, 99, 255, 0.25);
+}
+
+.badge-accent {
+  background: rgba(0, 212, 170, 0.12);
+  color: var(--color-accent);
+  border: 1px solid rgba(0, 212, 170, 0.2);
+}
+
+.badge-active {
+  background: var(--color-primary);
+  color: white;
+  border: 1px solid var(--color-primary);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+/* ============================================
+   AD SLOT
+   ============================================ */
+
+.ad-slot {
+  background: var(--color-surface-card);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  min-height: 90px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================
+   MARKDOWN CONTENT
+   ============================================ */
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h1 { font-size: 1.5rem; }
+.markdown-content h2 { font-size: 1.25rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+
+.markdown-content p {
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+  margin-bottom: 1em;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  color: var(--color-text-secondary);
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.4em;
+  line-height: 1.6;
+}
+
+.markdown-content strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.markdown-content a {
+  color: var(--color-primary-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-content code {
+  background: var(--color-surface-elevated);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+  font-family: var(--font-mono);
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1em;
+  margin-left: 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* ============================================
+   RESPONSIVE CONTAINER
+   ============================================ */
+
+.container-app {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+  .container-app {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-app {
+    max-width: 1080px;
+  }
+}
+
+/* ============================================
+   HORIZONTAL SCROLL (categorias)
+   ============================================ */
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

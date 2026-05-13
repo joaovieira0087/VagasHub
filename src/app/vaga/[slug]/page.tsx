@@ -1,0 +1,209 @@
+import { createClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import AdSlot from '@/components/AdSlot';
+import VagaCard from '@/components/VagaCard';
+import { formatarData, tempoRelativo } from '@/lib/utils/tempo';
+import type { VagaCompleta } from '@/types/database';
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+// Buscar vaga pelo slug
+async function buscarVaga(slug: string): Promise<VagaCompleta | null> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from('vagas')
+    .select('*, categorias(*), empresa(*)')
+    .eq('slug', slug)
+    .eq('status', 'ativa')
+    .single();
+
+  return data as VagaCompleta | null;
+}
+
+// Incrementar visualizações
+async function incrementarVisualizacoes(vagaId: string) {
+  const supabase = await createClient();
+  await supabase.rpc('increment_visualizacoes', { vaga_id: vagaId });
+}
+
+// Buscar vagas relacionadas (mesma categoria)
+async function buscarRelacionadas(categoriaId: string | null, vagaIdAtual: string): Promise<VagaCompleta[]> {
+  if (!categoriaId) return [];
+
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from('vagas')
+    .select('*, categorias(*), empresa(*)')
+    .eq('id_categoria', categoriaId)
+    .eq('status', 'ativa')
+    .neq('id', vagaIdAtual)
+    .order('created_at', { ascending: false })
+    .limit(6);
+
+  return (data as VagaCompleta[]) || [];
+}
+
+// SEO dinâmico
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const vaga = await buscarVaga(slug);
+
+  if (!vaga) {
+    return { title: 'Vaga não encontrada' };
+  }
+
+  const descricaoLimpa = vaga.descricao
+    ? vaga.descricao.replace(/[#*_\[\]()]/g, '').slice(0, 160)
+    : `Confira esta vaga: ${vaga.titulo}`;
+
+  return {
+    title: vaga.titulo,
+    description: descricaoLimpa,
+    openGraph: {
+      title: `🔥 ${vaga.titulo}`,
+      description: descricaoLimpa,
+      type: 'article',
+      locale: 'pt_BR',
+    },
+  };
+}
+
+export default async function VagaDetalhes({ params }: PageProps) {
+  const { slug } = await params;
+  const vaga = await buscarVaga(slug);
+
+  if (!vaga) {
+    notFound();
+  }
+
+  // Incrementar visualizações (fire and forget)
+  incrementarVisualizacoes(vaga.id);
+
+  const relacionadas = await buscarRelacionadas(vaga.id_categoria, vaga.id);
+
+  return (
+    <div className="container-app py-6">
+      <article className="animate-fade-in">
+        {/* Empresa Header */}
+        <div className="flex items-center gap-3 mb-5">
+          {vaga.empresa?.logo_url ? (
+            <img
+              src={vaga.empresa.logo_url}
+              alt={vaga.empresa.nome}
+              className="w-12 h-12 rounded-xl object-cover bg-surface-elevated border border-border-subtle"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border-subtle">
+              <span className="text-primary-light font-bold text-lg">
+                {vaga.empresa?.nome?.charAt(0).toUpperCase() || 'E'}
+              </span>
+            </div>
+          )}
+          <div>
+            <p className="text-text-primary font-semibold text-sm">
+              {vaga.empresa?.nome || 'Empresa'}
+            </p>
+            <p className="text-text-muted text-xs">
+              {tempoRelativo(vaga.created_at)} • {vaga.visualizacoes} visualizações
+            </p>
+          </div>
+        </div>
+
+        {/* Ad Slot 1 - Header */}
+        <AdSlot format="horizontal" label="Publicidade" />
+
+        {/* Título */}
+        <h1 className="text-xl sm:text-2xl font-bold text-text-primary leading-tight mt-5 mb-3">
+          {vaga.titulo}
+        </h1>
+
+        {/* Meta info */}
+        <div className="flex items-center gap-2 flex-wrap mb-6">
+          {vaga.categorias && (
+            <span className="badge badge-primary">
+              {vaga.categorias.nome}
+            </span>
+          )}
+          <span className="badge badge-accent">
+            {vaga.status === 'ativa' ? '🟢 Ativa' : '⚪ Encerrada'}
+          </span>
+          <span className="text-text-muted text-xs">
+            Publicada em {formatarData(vaga.created_at)}
+          </span>
+        </div>
+
+        {/* Descrição (Markdown) */}
+        <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none">
+          <div className="markdown-content">
+            {vaga.descricao ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {vaga.descricao}
+              </ReactMarkdown>
+            ) : (
+              <p className="text-text-secondary">
+                Sem descrição detalhada disponível. Clique em &quot;Candidatar-se&quot; para mais informações.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Ad Slot 2 - Between content and CTA */}
+        <AdSlot format="rectangle" label="Publicidade — Conteúdo" />
+
+        {/* CTA - Candidatar-se */}
+        <div className="mt-6 mb-8">
+          {vaga.link_externo ? (
+            <a
+              href={vaga.link_externo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-cta"
+              id="btn-candidatar"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M15 3h6v6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10 14L21 3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Candidatar-se Agora
+            </a>
+          ) : (
+            <button disabled className="btn-cta opacity-50 cursor-not-allowed">
+              Link indisponível
+            </button>
+          )}
+        </div>
+
+        {/* Vagas Relacionadas */}
+        {relacionadas.length > 0 && (
+          <section className="mt-8 mb-6">
+            <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+              <span className="w-1 h-5 bg-gradient-to-b from-primary to-accent rounded-full" />
+              Vagas Relacionadas
+            </h2>
+            <div className="flex flex-col gap-3">
+              {relacionadas.map((v, i) => (
+                <VagaCard key={v.id} vaga={v} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
+      </article>
+
+      {/* Ad Slot 3 - Sticky Bottom (mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 p-2 bg-background/90 backdrop-blur-lg border-t border-border-subtle sm:hidden">
+        <AdSlot format="horizontal" label="Publicidade" className="!my-0 !min-h-[50px]" />
+      </div>
+
+      {/* Spacer for sticky ad */}
+      <div className="h-16 sm:hidden" />
+    </div>
+  );
+}
