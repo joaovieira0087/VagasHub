@@ -4,6 +4,7 @@ import VagaCardSkeleton from '@/components/VagaCardSkeleton';
 import CategoriaBar from '@/components/CategoriaBar';
 import AdSlot from '@/components/AdSlot';
 import VagasList from '@/components/VagasList';
+import SearchBar from '@/components/SearchBar';
 import type { VagaCompleta, CategoriaComContagem } from '@/types/database';
 
 export async function buscarCategorias(): Promise<CategoriaComContagem[]> {
@@ -68,14 +69,15 @@ export default async function Home() {
     <>
       <div className="container-app py-6">
         {/* Hero minimal */}
-        <section className="mb-6 animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
+        <section className="mb-8 animate-fade-in flex flex-col items-center text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-primary leading-tight max-w-2xl">
             Vagas de Emprego
             <span className="text-primary-light"> Atualizadas</span>
           </h1>
-          <p className="text-text-secondary text-sm sm:text-base mt-1.5">
+          <p className="text-text-secondary text-base sm:text-lg mt-3 max-w-xl mb-6">
             Encontre sua próxima oportunidade. Novas vagas todos os dias.
           </p>
+          <SearchBar />
         </section>
 
         {/* Ad Slot 1 - Header */}
