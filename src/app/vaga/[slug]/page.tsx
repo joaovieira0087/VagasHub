@@ -144,9 +144,16 @@ export default async function VagaDetalhes({ params }: PageProps) {
         <AdSlot format="horizontal" label="Publicidade" />
 
         {/* Título */}
-        <h1 className="text-xl sm:text-2xl font-bold text-text-primary leading-tight mt-5 mb-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-text-primary leading-tight mt-5 mb-1">
           {vaga.titulo}
         </h1>
+
+        {/* Localização */}
+        {(vaga.cidade || vaga.estado) && (
+          <p className="text-text-secondary/80 text-sm mb-3 flex items-center gap-1 font-medium">
+            <span className="text-base">📍</span> {vaga.cidade}{vaga.cidade && vaga.estado ? ' - ' : ''}{vaga.estado}
+          </p>
+        )}
 
         {/* Meta info — Multi-categorias */}
         <div className="flex items-center gap-2 flex-wrap mb-6">

@@ -14,6 +14,8 @@ export default function AdminPage() {
   const [logoEmpresa, setLogoEmpresa] = useState('');
   const [vendasEmpresa, setVendasEmpresa] = useState('');
   const [linkExterno, setLinkExterno] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
 
   // State - UI
@@ -73,6 +75,8 @@ export default function AdminPage() {
       logo_empresa: logoEmpresa.trim() || undefined,
       vendas_empresa: vendasEmpresa.trim() || undefined,
       link_externo: linkExterno.trim(),
+      cidade: cidade.trim() || undefined,
+      estado: estado.trim() || undefined,
       admin_password: adminPassword,
     });
 
@@ -90,6 +94,8 @@ export default function AdminPage() {
       setLogoEmpresa('');
       setVendasEmpresa('');
       setLinkExterno('');
+      setCidade('');
+      setEstado('');
     } else {
       setMensagem({ tipo: 'erro', texto: resultado.error || 'Erro desconhecido.' });
     }
@@ -211,6 +217,36 @@ export default function AdminPage() {
               required
               id="input-titulo"
             />
+          </div>
+
+          {/* Localização */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2">
+                Cidade (opcional)
+              </label>
+              <input
+                type="text"
+                value={cidade}
+                onChange={(e) => setCidade(e.target.value)}
+                className="w-full bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
+                placeholder="Ex: São Paulo"
+                id="input-cidade"
+              />
+            </div>
+            <div>
+              <label className="block text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2">
+                Estado (opcional)
+              </label>
+              <input
+                type="text"
+                value={estado}
+                onChange={(e) => setEstado(e.target.value)}
+                className="w-full bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
+                placeholder="Ex: SP"
+                id="input-estado"
+              />
+            </div>
           </div>
 
           {/* Descrição */}

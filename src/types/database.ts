@@ -21,6 +21,8 @@ export interface Vaga {
   titulo: string;
   slug: string;
   descricao: string | null;
+  cidade: string | null;
+  estado: string | null;
   id_categoria: string | null; // Legacy — mantido para compatibilidade
   id_empresa: string | null;
   link_externo: string | null;

@@ -41,6 +41,13 @@ export default function VagaCard({ vaga, index = 0 }: VagaCardProps) {
             {vaga.titulo}
           </h3>
 
+          {/* Localização */}
+          {(vaga.cidade || vaga.estado) && (
+            <p className="text-text-secondary/70 text-[0.8rem] mt-0.5 font-medium">
+              📍 {vaga.cidade}{vaga.cidade && vaga.estado ? ' - ' : ''}{vaga.estado}
+            </p>
+          )}
+
           {/* Empresa */}
           {vaga.empresa && (
             <p className="text-text-secondary text-sm mt-0.5 truncate">

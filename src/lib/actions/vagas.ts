@@ -11,6 +11,8 @@ interface CriarVagaInput {
   logo_empresa?: string;
   vendas_empresa?: string;
   link_externo: string;
+  cidade?: string;
+  estado?: string;
   admin_password: string;
 }
 
@@ -92,6 +94,8 @@ export async function criarVaga(input: CriarVagaInput) {
         id_categoria: input.categorias_ids[0] || null,
         id_empresa: empresaId,
         link_externo: input.link_externo.trim(),
+        cidade: input.cidade?.trim() || null,
+        estado: input.estado?.trim() || null,
         status: 'ativa',
         visualizacoes: 0,
       })
