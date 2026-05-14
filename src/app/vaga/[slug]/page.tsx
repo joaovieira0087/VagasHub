@@ -171,8 +171,8 @@ export default async function VagaDetalhes({ params }: PageProps) {
         </div>
 
         {/* Descrição (Markdown) */}
-        <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none">
-          <div className="markdown-content">
+        <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none overflow-hidden">
+          <div className="markdown-content whitespace-pre-wrap break-words">
             {vaga.descricao ? (
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {vaga.descricao}

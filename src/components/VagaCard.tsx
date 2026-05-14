@@ -37,7 +37,7 @@ export default function VagaCard({ vaga, index = 0 }: VagaCardProps) {
 
         <div className="flex-1 min-w-0">
           {/* Título */}
-          <h3 className="text-text-primary font-semibold text-[0.95rem] leading-snug group-hover:text-primary-light transition-colors line-clamp-2">
+          <h3 className="text-text-primary font-semibold text-[0.95rem] leading-snug group-hover:text-primary-light transition-colors line-clamp-2 break-words">
             {vaga.titulo}
           </h3>
 
