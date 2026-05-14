@@ -47,6 +47,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className="min-h-full flex flex-col font-sans">
+        {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YE3SC4MM4Y"
           strategy="afterInteractive"
@@ -60,6 +61,15 @@ export default function RootLayout({
             gtag('config', 'G-YE3SC4MM4Y');
           `}
         </Script>
+
+        {/* Google AdSense Verification */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3166287163634587"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
