@@ -323,7 +323,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 - [x] **✅ Branding & UI** — Nova logomarca VagasHub integrada ao Header/Footer, configuração de Favicon, refinamento do Footer (`border-white/5`), e padronização de layout (padding/min-h-screen) nas páginas institucionais.
 - [x] **✅ Rotas Dinâmicas de Categoria** — Refatorado de filtros Client-Side para SSR (`/categoria/[slug]`), gerando Pageviews independentes para SEO e AdSense.
 - [x] **✅ Monetização Máxima** — Implementada repetição de AdSlots in-feed (1 a cada 4 vagas) e um banner fixo no rodapé.
-- [x] **✅ SEO e Social Sharing** — Configuração do Open Graph em detalhes da vaga (OG:Image dinâmico), e criação de `sitemap.xml` e `robots.txt` para indexação avançada no Google.
+- [x] **✅ SEO e Social Sharing** — Configuração do Open Graph em detalhes da vaga (OG:Image dinâmico). Criação de `sitemap.ts` (SSR/ISR) com revalidação automática a cada 1 hora para injetar dinamicamente as vagas no Google e `robots.txt`. Nota: Requer `NEXT_PUBLIC_SITE_URL` na Vercel.
 - [x] **✅ Sistema de Busca & Conversão** — Rota `/busca?q=` operando com query OR. Implementada lógica **"Fuzzy"** de remoção de acentos em Server Components para buscas parciais sem a necessidade de extensão `unaccent`.
 - [x] **✅ Recomendações Automáticas** — Sistema de fallback "Talvez te interesse" buscando vagas de "Estágio" ou "Júnior" quando uma busca retorna zero resultados, mantendo a monetização ativa.
 
@@ -367,6 +367,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
+| 2026-05-14 | SITEMAP AUTÔNOMO (ISR): Convertido o sitemap para SSR/ISR (`app/sitemap.ts`) com revalidação de 3600s. Vagas são lidas direto do banco, automatizando a indexação no Google sem novos deploys. |
 | 2026-05-13 | SITEMAP & METADATA: Corrigido o `baseUrl` no `sitemap.ts`, `robots.ts` e `layout.tsx` para usar `https://www.hubvagasbr.com.br` como fallback de produção. |
 | 2026-05-13 | BUSCA FUZZY E FALLBACK: Implementada lógica de remoção de acentos via JS para buscas parciais. Seção "Talvez te interesse" inserida em buscas sem resultados. Botão "Desfazer" na header da página de busca. |
 | 2026-05-13 | SISTEMA DE BUSCA & UX: Busca persistente com botão Reset. Novo CTA de busca injetado na página de detalhes (vaga/[slug]) para impulsionar novos pageviews. |
