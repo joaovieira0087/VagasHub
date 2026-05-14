@@ -367,6 +367,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
+| 2026-05-14 | BRANDING (TIER 4 FINAL): Substituição completa da marca. Novo Favicon nativo (`logo.ico`) e logo principal (`logooriginal.png`) implementados globalmente no Header, Footer e metadados Open Graph. |
 | 2026-05-14 | SITEMAP AUTÔNOMO (ISR): Convertido o sitemap para SSR/ISR (`app/sitemap.ts`) com revalidação de 3600s. Vagas são lidas direto do banco, automatizando a indexação no Google sem novos deploys. |
 | 2026-05-13 | SITEMAP & METADATA: Corrigido o `baseUrl` no `sitemap.ts`, `robots.ts` e `layout.tsx` para usar `https://www.hubvagasbr.com.br` como fallback de produção. |
 | 2026-05-13 | BUSCA FUZZY E FALLBACK: Implementada lógica de remoção de acentos via JS para buscas parciais. Seção "Talvez te interesse" inserida em buscas sem resultados. Botão "Desfazer" na header da página de busca. |

@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start gap-2">
             <div className="flex items-center gap-2">
               <div className="flex-shrink-0 flex items-center justify-center bg-white rounded-lg p-1.5 shadow-sm">
-                <img src="/logo.png" alt="VagasHub Logo" className="w-5 h-5 object-contain" />
+                <img src="/logooriginal.png" alt="VagasHub Logo" className="w-5 h-5 object-contain" />
               </div>
               <span className="text-text-primary font-bold text-lg tracking-tight">
                 Vagas<span className="text-primary-light">Hub</span>

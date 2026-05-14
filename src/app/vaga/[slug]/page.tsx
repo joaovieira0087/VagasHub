@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? vaga.descricao.replace(/[#*_\[\]()]/g, '').slice(0, 160)
     : `Confira os detalhes desta oportunidade e candidate-se agora no portal VagasHub.`;
 
-  const ogImageUrl = vaga.empresa?.logo_url || '/logo.png';
+  const ogImageUrl = vaga.empresa?.logo_url || '/logooriginal.png';
 
   return {
     title: `${vaga.titulo} - VagasHub`,

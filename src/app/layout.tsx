@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: "VagasHub",
     images: [
       {
-        url: '/logo.png',
+        url: '/logooriginal.png',
         width: 800,
         height: 600,
         alt: 'VagasHub Logo',
