@@ -44,7 +44,7 @@ export default function VagaCard({ vaga, index = 0 }: VagaCardProps) {
           {/* Localização */}
           {(vaga.cidade || vaga.estado) && (
             <p className="text-text-secondary/70 text-[0.8rem] mt-0.5 font-medium">
-              📍 {vaga.cidade}{vaga.cidade && vaga.estado ? ' - ' : ''}{vaga.estado}
+              {vaga.cidade}{vaga.cidade && vaga.estado ? ' - ' : ''}{vaga.estado}
             </p>
           )}
 
@@ -74,7 +74,7 @@ export default function VagaCard({ vaga, index = 0 }: VagaCardProps) {
         {/* Arrow indicator */}
         <div className="text-text-muted group-hover:text-primary-light transition-colors flex-shrink-0 mt-1">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>
