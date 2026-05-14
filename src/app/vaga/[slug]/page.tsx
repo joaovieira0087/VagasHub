@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import AdSlot from '@/components/AdSlot';
 import VagaCard from '@/components/VagaCard';
 import SearchBar from '@/components/SearchBar';
@@ -170,13 +168,14 @@ export default async function VagaDetalhes({ params }: PageProps) {
           </span>
         </div>
 
-        {/* Descrição (Markdown) */}
-        <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none overflow-hidden w-full block min-h-[100px]">
-          <div className="markdown-content whitespace-pre-wrap break-words text-text-primary w-full block">
+        {/* Descrição (Texto Puro Formatado) */}
+        <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none w-full block h-auto mt-6">
+          <div 
+            className="whitespace-pre-wrap break-words text-gray-200 text-base sm:text-lg leading-relaxed w-full block" 
+            style={{ overflowWrap: 'anywhere' }}
+          >
             {vaga.descricao ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {vaga.descricao}
-              </ReactMarkdown>
+              vaga.descricao
             ) : (
               <p className="text-text-secondary">
                 Sem descrição detalhada disponível. Clique em &quot;Candidatar-se&quot; para mais informações.
