@@ -30,11 +30,7 @@ export default function AdSlot({ format = 'horizontal', className = '', label }:
     <div
       className={`ad-slot ${heightMap[format]} w-full my-4 ${className}`}
       role="complementary"
-      aria-label={label || 'Anúncio'}
-    >
-      <span className="text-text-muted text-xs tracking-widest opacity-50">
-        {label || 'PUBLICIDADE'}
-      </span>
-    </div>
+      aria-hidden="true"
+    />
   );
 }
