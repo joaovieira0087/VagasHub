@@ -26,6 +26,8 @@ export interface Vaga {
   id_categoria: string | null; // Legacy — mantido para compatibilidade
   id_empresa: string | null;
   link_externo: string | null;
+  requisitos: string | null;
+  beneficios: string | null;
   status: string;
   visualizacoes: number;
   created_at: string;

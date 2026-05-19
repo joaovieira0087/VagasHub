@@ -5,6 +5,7 @@ import AdSlot from '@/components/AdSlot';
 import VagaCard from '@/components/VagaCard';
 import SearchBar from '@/components/SearchBar';
 import { formatarData, tempoRelativo } from '@/lib/utils/tempo';
+import { formatarTopicos } from '@/lib/utils/formatador';
 import type { VagaCompleta } from '@/types/database';
 
 interface PageProps {
@@ -183,6 +184,48 @@ export default async function VagaDetalhes({ params }: PageProps) {
             )}
           </div>
         </div>
+
+        {/* Requisitos — Exibição Condicional */}
+        {(() => {
+          const topicosRequisitos = formatarTopicos(vaga.requisitos);
+          return topicosRequisitos.length > 0 ? (
+            <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none w-full block h-auto">
+              <h2 className="text-xl sm:text-2xl font-bold text-text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-gradient-to-b from-primary to-accent rounded-full" />
+                Requisitos
+              </h2>
+              <ul className="space-y-2 pl-1">
+                {topicosRequisitos.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-gray-200 text-base sm:text-lg leading-relaxed">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-primary/70 shrink-0" />
+                    <span className="break-words" style={{ overflowWrap: 'anywhere' }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null;
+        })()}
+
+        {/* Benefícios — Exibição Condicional */}
+        {(() => {
+          const topicosBeneficios = formatarTopicos(vaga.beneficios);
+          return topicosBeneficios.length > 0 ? (
+            <div className="glass-card p-5 sm:p-6 mb-5 hover:transform-none w-full block h-auto">
+              <h2 className="text-xl sm:text-2xl font-bold text-text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-gradient-to-b from-accent to-green-400 rounded-full" />
+                Benefícios
+              </h2>
+              <ul className="space-y-2 pl-1">
+                {topicosBeneficios.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-gray-200 text-base sm:text-lg leading-relaxed">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-accent/70 shrink-0" />
+                    <span className="break-words" style={{ overflowWrap: 'anywhere' }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null;
+        })()}
 
         {/* Ad Slot 2 - Between content and CTA */}
         <AdSlot format="rectangle" label="Publicidade — Conteúdo" />
