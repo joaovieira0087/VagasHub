@@ -6,6 +6,8 @@ import { gerarSlug, gerarSlugCategoria } from '@/lib/utils/slug';
 interface CriarVagaInput {
   titulo: string;
   descricao: string;
+  requisitos?: string;
+  beneficios?: string;
   categorias_ids: string[];
   nome_empresa: string;
   logo_empresa?: string;
@@ -91,6 +93,8 @@ export async function criarVaga(input: CriarVagaInput) {
         titulo: input.titulo.trim(),
         slug,
         descricao: input.descricao.trim(),
+        requisitos: input.requisitos?.trim() || null,
+        beneficios: input.beneficios?.trim() || null,
         id_categoria: input.categorias_ids[0] || null,
         id_empresa: empresaId,
         link_externo: input.link_externo.trim(),

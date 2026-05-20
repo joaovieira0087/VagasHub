@@ -9,6 +9,8 @@ export default function AdminPage() {
   // State - Form
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [requisitos, setRequisitos] = useState('');
+  const [beneficios, setBeneficios] = useState('');
   const [categoriasIds, setCategoriasIds] = useState<string[]>([]);
   const [nomeEmpresa, setNomeEmpresa] = useState('');
   const [logoEmpresa, setLogoEmpresa] = useState('');
@@ -70,6 +72,8 @@ export default function AdminPage() {
     const resultado = await criarVaga({
       titulo: titulo.trim(),
       descricao: descricao.trim(),
+      requisitos: requisitos.trim() || undefined,
+      beneficios: beneficios.trim() || undefined,
       categorias_ids: categoriasIds,
       nome_empresa: nomeEmpresa.trim() || 'Empresa',
       logo_empresa: logoEmpresa.trim() || undefined,
@@ -89,6 +93,8 @@ export default function AdminPage() {
       // Limpar formulário (exceto senha)
       setTitulo('');
       setDescricao('');
+      setRequisitos('');
+      setBeneficios('');
       setCategoriasIds([]);
       setNomeEmpresa('');
       setLogoEmpresa('');
@@ -259,9 +265,45 @@ export default function AdminPage() {
               onChange={(e) => setDescricao(e.target.value)}
               rows={8}
               className="w-full bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-y font-mono text-[13px] leading-relaxed"
-              placeholder={"## Requisitos\n- Item 1\n- Item 2\n\n## Benefícios\n- VR, VT..."}
+              placeholder={"Detalhes da vaga..."}
               id="input-descricao"
             />
+          </div>
+
+          {/* Requisitos (opcional) */}
+          <div>
+            <label className="block text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2">
+              📋 Requisitos (opcional)
+            </label>
+            <textarea
+              value={requisitos}
+              onChange={(e) => setRequisitos(e.target.value)}
+              rows={4}
+              className="w-full bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-y font-mono text-[13px] leading-relaxed"
+              placeholder={"Experiência com React\nConhecimento em TypeScript\nInglês intermediário"}
+              id="input-requisitos"
+            />
+            <p className="text-text-muted text-xs mt-1">
+              Insira cada item pulando uma linha com o Enter para que o sistema gere os tópicos automáticos.
+            </p>
+          </div>
+
+          {/* Benefícios (opcional) */}
+          <div>
+            <label className="block text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2">
+              🎁 Benefícios (opcional)
+            </label>
+            <textarea
+              value={beneficios}
+              onChange={(e) => setBeneficios(e.target.value)}
+              rows={4}
+              className="w-full bg-surface-card border border-border rounded-lg px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-y font-mono text-[13px] leading-relaxed"
+              placeholder={"Vale Refeição\nPlano de Saúde\nHome Office flexível"}
+              id="input-beneficios"
+            />
+            <p className="text-text-muted text-xs mt-1">
+              Insira cada item pulando uma linha com o Enter para que o sistema gere os tópicos automáticos.
+            </p>
           </div>
 
           {/* Categorias — Multi-Select Tags */}
