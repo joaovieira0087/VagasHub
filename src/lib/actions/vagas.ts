@@ -221,3 +221,36 @@ export async function listarVagasAdmin(adminPassword: string) {
     return { success: false, error: 'Falha de conexão com o banco de dados.', vagas: [] };
   }
 }
+
+export async function buscarLocaisExistentes() {
+  let supabase;
+  try {
+    supabase = createAdminClient();
+  } catch (err) {
+    console.error('[buscarLocaisExistentes] Falha ao criar cliente Supabase:', (err as Error).message);
+    return { cidades: [], estados: [] };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('vagas')
+      .select('cidade, estado')
+      .eq('status', 'ativa');
+
+    if (error || !data) {
+      console.error('[buscarLocaisExistentes] Erro:', error);
+      return { cidades: [], estados: [] };
+    }
+
+    const cidades = Array.from(new Set(data.map(v => v.cidade).filter(Boolean))) as string[];
+    const estados = Array.from(new Set(data.map(v => v.estado).filter(Boolean))) as string[];
+
+    cidades.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    estados.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    return { cidades, estados };
+  } catch (err) {
+    console.error('[buscarLocaisExistentes] Erro inesperado:', (err as Error).message);
+    return { cidades: [], estados: [] };
+  }
+}

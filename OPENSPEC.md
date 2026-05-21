@@ -312,6 +312,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 - [x] Schema SQL com RLS, índices e seed data
 
 ### Resolvido Recentemente
+- [x] **✅ Banner Hero & Localização Dinâmica (TIER 4)** — Substituição do header simples por um Banner Hero premium em tela cheia com overlay/gradiente de alta legibilidade, input duplo (termo e localização), dropdown de autocompletar interativo segmentado (Cidades/Estados) filtrado no client-side e integrado ao Supabase.
 - [x] **✅ Conexão Supabase restaurada** — `.env.local` atualizado com credenciais reais do projeto `aaxgppernvmtdvhvnqpk`
 - [x] **✅ Schema SQL aplicado** — 10 categorias seed confirmadas no banco (Tecnologia, Administrativo, Vendas, etc.)
 - [x] **✅ Fetch failed corrigido** — Causa raiz: placeholders no `.env.local`. Clientes agora validam env vars no boot
@@ -367,6 +368,7 @@ Todas validam `ADMIN_SECRET_KEY` antes de executar. Usam `createAdminClient()`.
 
 | Data | Mudança |
 |---|---|
+| 2026-05-21 | HERO E BUSCA DINÂMICA: Substituição da busca simples por um Banner Hero Premium em tela cheia com overlay/gradiente de alta legibilidade, input duplo (termo e localização), dropdown de autocompletar interativo segmentado (Cidades/Estados) filtrado no client-side e integrado ao Supabase. |
 | 2026-05-14 | LOCALIZAÇÃO: Adicionados campos opcionais de `cidade` e `estado` em `vagas`. Implementados no Painel Admin e visualizados com ícone 📍 na UI (VagaCard e Detalhes). |
 | 2026-05-14 | BRANDING (TIER 4 FINAL): Substituição completa da marca. Novo Favicon nativo (`logo.ico`) e logo principal (`logooriginal.png`) implementados globalmente no Header, Footer e metadados Open Graph. |
 | 2026-05-14 | SITEMAP AUTÔNOMO (ISR): Convertido o sitemap para SSR/ISR (`app/sitemap.ts`) com revalidação de 3600s. Vagas são lidas direto do banco, automatizando a indexação no Google sem novos deploys. |

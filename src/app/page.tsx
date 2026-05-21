@@ -5,6 +5,7 @@ import CategoriaBar from '@/components/CategoriaBar';
 import AdSlot from '@/components/AdSlot';
 import VagasList from '@/components/VagasList';
 import SearchBar from '@/components/SearchBar';
+import { buscarLocaisExistentes } from '@/lib/actions/vagas';
 import type { VagaCompleta, CategoriaComContagem } from '@/types/database';
 
 export async function buscarCategorias(): Promise<CategoriaComContagem[]> {
@@ -64,22 +65,50 @@ async function VagasListWrapper() {
 
 export default async function Home() {
   const categorias = await buscarCategorias();
+  const locais = await buscarLocaisExistentes();
 
   return (
     <>
-      <div className="container-app py-6">
-        {/* Hero minimal */}
-        <section className="mt-8 sm:mt-12 mb-10 animate-fade-in flex flex-col items-center text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text-primary leading-tight max-w-2xl">
-            Vagas de Emprego
-            <span className="text-primary-light"> Atualizadas</span>
+      {/* Banner Hero Premium (Full Width!) */}
+      <section className="relative w-full overflow-hidden border-b border-border-subtle bg-[#0B0D1A]">
+        {/* Imagem de Fundo Profissional */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-35 mix-blend-luminosity scale-105"
+          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80')` }}
+        />
+        
+        {/* Overlay Escuro com Gradiente */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0D1A]/80 via-[#0B0D1A]/95 to-[#0B0D1A]" />
+        
+        {/* Detalhes de Brilho de Fundo (Glow Effects) */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-accent/5 blur-[120px] pointer-events-none" />
+        
+        {/* Conteúdo Centralizado */}
+        <div className="relative z-10 container-app py-16 sm:py-24 flex flex-col items-center text-center animate-fade-in">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-primary/15 text-primary-light border border-primary/20 mb-6 backdrop-blur-sm select-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            Vagas Atualizadas Diariamente
+          </span>
+          
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-primary leading-[1.15] max-w-3xl drop-shadow-sm tracking-tight">
+            Encontre sua próxima <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-primary-light via-purple-300 to-accent bg-clip-text text-transparent drop-shadow-sm">
+              Oportunidade Profissional
+            </span>
           </h1>
-          <p className="text-text-secondary text-base sm:text-lg mt-3 max-w-xl mb-8">
-            Encontre sua próxima oportunidade. Novas vagas todos os dias.
+          
+          <p className="text-text-secondary text-base sm:text-lg md:text-xl mt-4 max-w-xl mb-10 leading-relaxed">
+            As melhores vagas de emprego de forma simples e direta, sem burocracia. Candidate-se com um clique!
           </p>
-          <SearchBar />
-        </section>
+          
+          <div className="w-full flex justify-center px-2">
+            <SearchBar locais={locais} />
+          </div>
+        </div>
+      </section>
 
+      <div className="container-app py-6">
         {/* Ad Slot 1 - Header */}
         <AdSlot format="horizontal" label="Publicidade — Header" className="mb-5" />
 
