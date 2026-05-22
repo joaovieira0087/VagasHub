@@ -127,7 +127,7 @@ export default async function Home() {
               </div>
             </div>
           }>
-            <CategoriaBar categorias={categorias} />
+            <CategoriaBar categorias={categorias.slice(0, 6)} linkVerTodas="/categorias" />
           </Suspense>
         </section>
 

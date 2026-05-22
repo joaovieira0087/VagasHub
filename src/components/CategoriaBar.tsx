@@ -4,6 +4,7 @@ import type { CategoriaComContagem } from '@/types/database';
 interface CategoriaBarProps {
   categorias: CategoriaComContagem[];
   categoriaAtiva?: string;
+  linkVerTodas?: string;
 }
 
 // Mapeamento de Cores e Estilos Premium para cada categoria
@@ -155,7 +156,7 @@ function CategoriaIcon({ slug, className }: { slug: string; className?: string }
   }
 }
 
-export default function CategoriaBar({ categorias, categoriaAtiva }: CategoriaBarProps) {
+export default function CategoriaBar({ categorias, categoriaAtiva, linkVerTodas = '/' }: CategoriaBarProps) {
   const isAtiva = (slug: string | null) => {
     if (slug === null) return !categoriaAtiva;
     return categoriaAtiva === slug;
@@ -169,7 +170,7 @@ export default function CategoriaBar({ categorias, categoriaAtiva }: CategoriaBa
           Explore por categoria
         </h2>
         <Link
-          href="/"
+          href={linkVerTodas}
           className="text-xs sm:text-sm font-semibold text-primary-light hover:text-primary transition-colors flex items-center gap-1 group"
           id="categoria-ver-todas"
         >
