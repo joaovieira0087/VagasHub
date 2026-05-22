@@ -175,7 +175,7 @@ export default function SearchBar({
         {isDropdownOpen && hasOptions && (
           <div
             ref={dropdownRef}
-            className="absolute left-0 right-0 top-[calc(100%+12px)] md:top-[calc(100%+16px)] z-50 bg-surface-elevated/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[300px] overflow-y-auto animate-scale-in scroll-hidden backdrop-blur-xl"
+            className="absolute left-0 top-full mt-2 z-50 w-full min-w-[320px] bg-[#12152B]/98 border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden max-h-[320px] overflow-y-auto animate-scale-in scroll-hidden backdrop-blur-2xl"
           >
             {filteredCidades.length > 0 && (
               <div className="p-2 border-b border-white/5">
