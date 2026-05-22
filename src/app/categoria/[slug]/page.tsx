@@ -94,8 +94,20 @@ export default async function CategoriaPage({ params }: PageProps) {
         <AdSlot format="horizontal" label="Publicidade — Topo Categoria" className="mb-5" />
 
         {/* Categorias Bar */}
-        <section className="mb-5">
-          <Suspense fallback={<div className="skeleton h-8 w-full rounded-full" />}>
+        <section className="mb-8">
+          <Suspense fallback={
+            <div className="w-full animate-pulse">
+              <div className="flex items-center justify-between mb-6">
+                <div className="skeleton h-7 w-44 rounded-lg" />
+                <div className="skeleton h-5 w-16 rounded-lg" />
+              </div>
+              <div className="flex gap-4 overflow-hidden pb-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-[145px] sm:w-[160px] h-[140px] sm:h-[155px] skeleton rounded-2xl" />
+                ))}
+              </div>
+            </div>
+          }>
             <CategoriaBar categorias={categorias} categoriaAtiva={slug} />
           </Suspense>
         </section>
