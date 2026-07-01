@@ -31,6 +31,10 @@ export interface Vaga {
   status: string;
   visualizacoes: number;
   created_at: string;
+  ativo: boolean;
+  api_external_id: string | null;
+  origem: string | null;
+  nivel: 'Estágio' | 'Júnior' | null;
 }
 
 // Vaga com dados expandidos (joins via tabela de junção)

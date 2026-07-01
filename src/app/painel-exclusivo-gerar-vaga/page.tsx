@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { criarVaga, listarCategorias, listarVagasAdmin, excluirVaga, criarCategoria } from '@/lib/actions/vagas';
+import { criarVaga, listarCategorias, listarVagasAdmin, excluirVaga, criarCategoria, toggleAtivoVaga } from '@/lib/actions/vagas';
 import { gerarTextoWhatsApp, gerarUrlVaga, copiarParaClipboard } from '@/lib/utils/whatsapp';
 import type { Categoria } from '@/types/database';
 
@@ -31,6 +31,10 @@ export default function AdminPage() {
   const [tab, setTab] = useState<'criar' | 'listar'>('criar');
   const [vagasAdmin, setVagasAdmin] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
+
+  // State - Sync
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
 
   // State - Nova Categoria
   const [novaCategoriaInput, setNovaCategoriaInput] = useState('');
@@ -136,8 +140,47 @@ export default function AdminPage() {
     setLoadingList(false);
   }
 
+  async function handleToggleAtivo(id: string, currentAtivo: boolean) {
+    const novoEstado = !currentAtivo;
+    const result = await toggleAtivoVaga(id, novoEstado, adminPassword);
+    if (result.success) {
+      setVagasAdmin((prev) =>
+        prev.map((v) => (v.id === id ? { ...v, ativo: novoEstado } : v))
+      );
+    } else {
+      setMensagem({ tipo: 'erro', texto: result.error || 'Erro ao alterar status.' });
+    }
+  }
+
+  async function handleSync() {
+    if (!adminPassword.trim()) {
+      setMensagem({ tipo: 'erro', texto: 'Digite a senha de acesso na aba "Criar Vaga" primeiro.' });
+      return;
+    }
+    setSyncing(true);
+    setSyncResult(null);
+    setMensagem(null);
+    try {
+      const res = await fetch(`/api/sync-jobs?secret=${encodeURIComponent(adminPassword)}`);
+      const data = await res.json();
+      if (res.ok) {
+        setSyncResult(`Sincronizado: ${data.totalInseridas} novas, ${data.totalAtualizadas} atualizadas, ${data.totalIgnoradas} ignoradas.`);
+        const result = await listarVagasAdmin(adminPassword);
+        if (result.success) {
+          setVagasAdmin(result.vagas);
+        }
+      } else {
+        setMensagem({ tipo: 'erro', texto: data.error || 'Erro ao sincronizar.' });
+      }
+    } catch (err) {
+      setMensagem({ tipo: 'erro', texto: 'Falha de rede ao tentar sincronizar.' });
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   async function handleExcluir(id: string) {
-    if (!confirm('Deseja desativar esta vaga?')) return;
+    if (!confirm('Deseja excluir permanentemente/desativar esta vaga?')) return;
     const result = await excluirVaga(id, adminPassword);
     if (result.success) {
       setVagasAdmin((prev) => prev.filter((v) => v.id !== id));
@@ -495,6 +538,31 @@ export default function AdminPage() {
             </div>
           )}
 
+          {adminPassword.trim() && (
+            <div className="flex flex-col gap-2 mb-4">
+              <button
+                type="button"
+                onClick={handleSync}
+                disabled={syncing}
+                className="badge badge-accent py-2 cursor-pointer hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-1.5 w-full text-xs font-semibold"
+              >
+                {syncing ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  '🔄 Sincronizar Vagas da API Adzuna'
+                )}
+              </button>
+              {syncResult && (
+                <div className="bg-success/15 border border-success/30 text-success rounded-lg p-2.5 text-xs text-center font-medium animate-scale-in">
+                  {syncResult}
+                </div>
+              )}
+            </div>
+          )}
+
           {loadingList ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -507,15 +575,39 @@ export default function AdminPage() {
             <div className="space-y-3">
               {vagasAdmin.map((vaga) => {
                 const cats = vaga.vagas_categorias?.map((vc: any) => vc.categorias?.nome).filter(Boolean) || [];
+                const isApi = vaga.origem === 'api';
+                const isAtivo = vaga.ativo !== false;
+
                 return (
-                  <div key={vaga.id} className="glass-card p-4 hover:transform-none">
+                  <div 
+                    key={vaga.id} 
+                    className={`glass-card p-4 hover:transform-none transition-all duration-200 ${
+                      !isAtivo ? 'opacity-50 grayscale-[15%]' : ''
+                    }`}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-text-primary font-semibold text-sm truncate">{vaga.titulo}</h3>
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h3 className="text-text-primary font-semibold text-sm truncate">{vaga.titulo}</h3>
+                          <div className="flex gap-1">
+                            <span className={`text-[0.6rem] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                              isApi 
+                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
+                                : 'bg-primary/10 text-primary-light border border-primary/20'
+                            }`}>
+                              {isApi ? 'API' : 'Manual'}
+                            </span>
+                            {vaga.nivel && (
+                              <span className="text-[0.6rem] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                {vaga.nivel}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                         <p className="text-text-muted text-xs mt-0.5">
                           {vaga.empresa?.nome} • {vaga.visualizacoes} views •{' '}
-                          <span className={vaga.status === 'ativa' ? 'text-success' : 'text-danger'}>
-                            {vaga.status}
+                          <span className={isAtivo ? 'text-success' : 'text-danger'}>
+                            {isAtivo ? 'ativa' : 'inativa'}
                           </span>
                         </p>
                         {cats.length > 0 && (
@@ -528,7 +620,18 @@ export default function AdminPage() {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-1.5 flex-shrink-0">
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => handleToggleAtivo(vaga.id, isAtivo)}
+                          className={`badge cursor-pointer text-[0.65rem] hover:opacity-90 font-bold transition-all px-2.5 py-1 rounded-full ${
+                            isAtivo
+                              ? 'bg-success/10 text-success border border-success/20 hover:bg-success/20'
+                              : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700'
+                          }`}
+                          title={isAtivo ? 'Desativar vaga' : 'Ativar vaga'}
+                        >
+                          {isAtivo ? 'Ativa' : 'Inativa'}
+                        </button>
                         <button
                           onClick={() => handleCopiarLink(vaga.slug, vaga.titulo)}
                           className="badge badge-accent cursor-pointer text-[0.65rem] hover:opacity-80"
@@ -539,7 +642,7 @@ export default function AdminPage() {
                         <button
                           onClick={() => handleExcluir(vaga.id)}
                           className="badge text-[0.65rem] cursor-pointer hover:opacity-80 bg-danger/10 text-danger border border-danger/20"
-                          title="Desativar vaga"
+                          title="Excluir vaga permanentemente"
                         >
                           🗑️
                         </button>

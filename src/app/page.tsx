@@ -20,7 +20,7 @@ export async function buscarCategorias(): Promise<CategoriaComContagem[]> {
   const { data: vagas } = await supabase
     .from('vagas')
     .select('id, vagas_categorias(categoria_id)')
-    .eq('status', 'ativa');
+    .eq('ativo', true);
 
   if (!categorias) return [];
 
@@ -51,7 +51,7 @@ async function buscarTodasVagas(): Promise<VagaCompleta[]> {
   const { data } = await supabase
     .from('vagas')
     .select('*, vagas_categorias(categorias(*)), empresa(*)')
-    .eq('status', 'ativa')
+    .eq('ativo', true)
     .order('created_at', { ascending: false })
     .limit(50);
 

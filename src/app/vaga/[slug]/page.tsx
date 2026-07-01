@@ -19,7 +19,7 @@ async function buscarVaga(slug: string): Promise<VagaCompleta | null> {
     .from('vagas')
     .select('*, vagas_categorias(categorias(*)), empresa(*)')
     .eq('slug', slug)
-    .eq('status', 'ativa')
+    .eq('ativo', true)
     .single();
 
   return data as VagaCompleta | null;
@@ -49,7 +49,7 @@ async function buscarRelacionadas(vagaId: string, categoriaIds: string[]): Promi
   const { data } = await supabase
     .from('vagas')
     .select('*, vagas_categorias(categorias(*)), empresa(*)')
-    .eq('status', 'ativa')
+    .eq('ativo', true)
     .in('id', vagaIds)
     .order('created_at', { ascending: false })
     .limit(6);

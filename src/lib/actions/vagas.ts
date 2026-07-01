@@ -102,6 +102,8 @@ export async function criarVaga(input: CriarVagaInput) {
         estado: input.estado?.trim() || null,
         status: 'ativa',
         visualizacoes: 0,
+        ativo: true,
+        origem: 'manual',
       })
       .select('id, slug, titulo')
       .single();
@@ -191,7 +193,7 @@ export async function excluirVaga(id: string, adminPassword: string) {
     const supabase = createAdminClient();
     const { error } = await supabase
       .from('vagas')
-      .update({ status: 'inativa' })
+      .update({ status: 'inativa', ativo: false })
       .eq('id', id);
 
     if (error) return { success: false, error: error.message };
@@ -235,7 +237,7 @@ export async function buscarLocaisExistentes() {
     const { data, error } = await supabase
       .from('vagas')
       .select('cidade, estado')
-      .eq('status', 'ativa');
+      .eq('ativo', true);
 
     if (error || !data) {
       console.error('[buscarLocaisExistentes] Erro:', error);
@@ -252,5 +254,28 @@ export async function buscarLocaisExistentes() {
   } catch (err) {
     console.error('[buscarLocaisExistentes] Erro inesperado:', (err as Error).message);
     return { cidades: [], estados: [] };
+  }
+}
+
+export async function toggleAtivoVaga(id: string, ativo: boolean, adminPassword: string) {
+  if (adminPassword !== process.env.ADMIN_SECRET_KEY) {
+    return { success: false, error: 'Senha inválida.' };
+  }
+
+  try {
+    const supabase = createAdminClient();
+    const { error } = await supabase
+      .from('vagas')
+      .update({ 
+        ativo,
+        status: ativo ? 'ativa' : 'inativa' // Sincroniza status legado
+      })
+      .eq('id', id);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err) {
+    console.error('[toggleAtivoVaga] Falha:', (err as Error).message);
+    return { success: false, error: 'Falha de conexão com o banco de dados.' };
   }
 }

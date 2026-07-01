@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: vagas } = await supabase
     .from('vagas')
     .select('slug, created_at')
-    .eq('status', 'ativa');
+    .eq('ativo', true);
 
   const vagaRoutes = (vagas || []).map((vaga) => ({
     url: `${baseUrl}/vaga/${vaga.slug}`,

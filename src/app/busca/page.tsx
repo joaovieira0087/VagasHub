@@ -54,7 +54,7 @@ async function buscarVagasPorTermo(termo: string, cidade?: string, estado?: stri
   let queryBuilder = supabase
     .from('vagas')
     .select('*, vagas_categorias(categorias(*)), empresa(*)')
-    .eq('status', 'ativa');
+    .eq('ativo', true);
 
   if (cidade) {
     queryBuilder = queryBuilder.eq('cidade', cidade);
@@ -96,7 +96,7 @@ async function buscarRecomendacoes(): Promise<VagaCompleta[]> {
   const { data } = await supabase
     .from('vagas')
     .select('*, vagas_categorias(categorias(*)), empresa(*)')
-    .eq('status', 'ativa')
+    .eq('ativo', true)
     .or('titulo.ilike.%junior%,titulo.ilike.%júnior%,titulo.ilike.%estágio%,titulo.ilike.%estagio%')
     .order('created_at', { ascending: false })
     .limit(4);
@@ -106,7 +106,7 @@ async function buscarRecomendacoes(): Promise<VagaCompleta[]> {
     const { data: fallbackData } = await supabase
       .from('vagas')
       .select('*, vagas_categorias(categorias(*)), empresa(*)')
-      .eq('status', 'ativa')
+      .eq('ativo', true)
       .order('created_at', { ascending: false })
       .limit(4);
     
