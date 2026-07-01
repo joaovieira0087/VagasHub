@@ -72,14 +72,16 @@ export async function GET(request: NextRequest) {
     ) || categoriasDB[0];
 
     // 4. Efetuar chamadas para a API do Adzuna Brasil
-    // Buscaremos vagas com keywords "junior tecnologia" e "estagio tecnologia" separadamente para maior cobertura
-    const searchTerms = ['junior tecnologia', 'estagio tecnologia'];
+    // Buscaremos com termos amplos de tecnologia e filtraremos nível no loop local
+    const searchTerms = ['developer', 'programador', 'TI', 'computacao'];
     const allJobsMap = new Map<string, any>();
 
     for (const term of searchTerms) {
       const url = `https://api.adzuna.com/v1/api/jobs/br/search/1?app_id=${appId}&app_key=${appKey}&what=${encodeURIComponent(
         term
       )}&results_per_page=50&content-type=application/json`;
+
+      console.log("URL chamada:", url);
 
       try {
         const res = await fetch(url, { next: { revalidate: 0 } });
